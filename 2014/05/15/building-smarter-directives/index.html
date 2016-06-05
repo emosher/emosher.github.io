@@ -1,0 +1,43 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>emosher</title><link rel="stylesheet" href="/css/pure-min.css">
+<link rel="stylesheet" href="/css/grids-responsive-min.css">
+<link rel="stylesheet" href="/css/style.css"></head><body><div id="layout" class="pure-g"><div class="sidebar pure-u-1 pure-u-md-1-4"><div class="header"><h1 class="brand-title"><a href="/">emosher</a></h1><h2 class="brand-tagline">Geek, coder/developer, musician, gamer.</h2><nav class="nav"><ul class="nav-list"><li class="nav-item"><a href="/archives" class="pure-button">archives</a></li><li class="nav-item"><a href="/about" class="pure-button">about</a></li></ul></nav></div></div><div class="content pure-u-1 pure-u-md-3-4"><div class="posts"><div class="post"><div class="post-header"><h2 class="post-title">Building Smarter Directives</h2><p class="post-meta"><span class="post-date"><i class="icon-clock"></i>2014-05-15 22:30</span><span class="post-tags"><i class="icon-tags"></i><a href="/tags/angularjs-javascript/" class="post-tag">
+- angularjs
+- javascript</a></span></p></div><div class="post-content"><p>I’ve been working a lot with AngularJS directives recently.</p>
+<p>If you are not familiar with AngularJS or directives, head over to the <a href="https://docs.angularjs.org/tutorial" target="_blank" rel="external">AngularJS tutorial</a> and <a href="https://docs.angularjs.org/guide" target="_blank" rel="external">developer guide</a> to get up to speed.</p>
+<h3 id="Template-vs-TemplateUrl"><a href="#Template-vs-TemplateUrl" class="headerlink" title="Template vs. TemplateUrl"></a>Template vs. TemplateUrl</h3><p>If you are like me, you like to keep HTML out of your JavaScript. When I’m writing my directives, I almost always keep templates in seperate HTML files rather than using inline templates (see below for an example).<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"> // This inline template makes me a sad panda :(</span><br><span class="line">  angular.module(&apos;myApp&apos;, [])</span><br><span class="line">  	.directive(&apos;example&apos;, function() &#123;</span><br><span class="line">  		return &#123;</span><br><span class="line">      		template: &apos;&lt;div ng-include=&quot;contentUrl&quot;&gt;&lt;/div&gt;&apos;</span><br><span class="line">      		&#125;;</span><br><span class="line">  		&#125;;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></p>
+<p>Or …<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"> // Moving that HTML into a seperate file makes me happy! :)</span><br><span class="line">  angular.module(&apos;myApp&apos;, [])</span><br><span class="line">  	.directive(&apos;example&apos;, function() &#123;</span><br><span class="line">  		return &#123;</span><br><span class="line">      		templateUrl: &apos;example.html&apos;</span><br><span class="line">      		&#125;;</span><br><span class="line">  		&#125;;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></p>
+<h3 id="‘Smart’-Directives"><a href="#‘Smart’-Directives" class="headerlink" title="‘Smart’ Directives"></a>‘Smart’ Directives</h3><p>One of the big challenges I have been facing is how to make my directives <em>smarter.</em> One way I have found recently is creating the ability to include one of any number of templates via the <code>ngInclude</code> directive above. This way one directive can use any number of templates which makes the directive feel like a self-contained component.</p>
+<p>Thanks to the built-in ngInclude directive, this is fairly easy. Throw some HTML into <code>one.html</code> or <code>two.html</code> and you will have the start to a smarter directive. Suppose you have the following in your directive’s <code>templateUrl: mydirective.html</code>.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">	&lt;div ng-include=&quot;contentUrl&quot;&gt;&lt;/div&gt;</span><br><span class="line">```    </span><br><span class="line"></span><br><span class="line">This allows you to set the directive&apos;s scope variable `contentUrl` to be included within this directive. For demonstration, the directive will be called `emSmarty` and you would structure it like so:</span><br></pre></td></tr></table></figure></p>
+<pre><code>app.directive(&apos;emSmarty&apos;, function() {
+    return {
+        templateUrl: &apos;emsmarty.html&apos;,
+        scope: true,
+        link: function(scope, element, attrs) {
+            scope.contentUrl = attrs.emSmarty + &apos;.html&apos;;
+        }
+    };
+});
+</code></pre><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">This allows you to use the directive within your HTML: `em-smarty=&quot;one&quot;`. That will include `one.html` in the directive!</span><br><span class="line"></span><br><span class="line">### Feel the Power of the Directive Side</span><br><span class="line"></span><br><span class="line">Where ngInclude comes in very handy is where you have several templates that you might want to load depending on some condition. Think of it like this...</span><br></pre></td></tr></table></figure>
+<pre><code>switch (condition) {
+    case &quot;one&quot;:
+        // Use template &apos;one&apos;
+        break;
+    case &quot;two&quot;:
+        // Use template &apos;two&apos;
+        break;
+    case &quot;three&quot;:
+        // Use template &apos;three&apos;
+        break;
+    // This could go on...
+}
+</code></pre><p>```</p>
+<p>Here’s a Plunker I created to show a simple example of conditional loading a templateUrl.</p>
+<p><a href="http://plnkr.co/edit/F7WRhY?p=preview" target="_blank" rel="external">http://plnkr.co/edit/F7WRhY?p=preview</a></p>
+<h3 id="Additional-Discussion"><a href="#Additional-Discussion" class="headerlink" title="Additional Discussion"></a>Additional Discussion</h3><p>You can find some additional resources on creating smarter directives at the following links:</p>
+<ul>
+<li><a href="https://coderwall.com/p/mgtrkg" target="_blank" rel="external">https://coderwall.com/p/mgtrkg</a></li>
+<li><a href="http://onehungrymind.com/angularjs-dynamic-templates/" target="_blank" rel="external">http://onehungrymind.com/angularjs-dynamic-templates/</a></li>
+</ul>
+</div><nav id="post-nav"><a id="post-nav-newer" href="/2014/06/25/building-smarter-directives-2/" class="post-nav-link-wrap"><strong class="post-nav-caption">Newer</strong><div class="post-nav-title">Building Smarter Directives #2</div></a><a id="post-nav-older" href="/2014/05/01/angularjs-app-walkthrough/" class="post-nav-link-wrap"><strong class="post-nav-caption">Older</strong><div class="post-nav-title">AngularJS App Walkthrough</div></a></nav></div></div><div class="footer"><div class="social-link"><a href="http://weibo.com/" target="_blank"><i class="icon-weibo"></i></a><a href="https://github.com/emosher" target="_blank"><i class="icon-github"></i></a><a href="https://plus.google.com/" target="_blank"><i class="icon-gplus"></i></a><a href="https://twitter.com/emoshmosh" target="_blank"><i class="icon-twitter"></i></a></div><div class="copyright">&copy; 2016 Eric Mosher.
+Powered by <a href="http://hexo.io" target="_blank">Hexo</a>
+using <a href="https://github.com/saintwinkle/hexo-theme-pure" target="_blank">Pure</a> theme.</div></div></div><script src="/js/script.js"></script></div></body></html>
