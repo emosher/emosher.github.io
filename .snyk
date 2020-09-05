@@ -1,0 +1,13 @@
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.19.0
+ignore: {}
+# patches apply the minimum changes required to fix a vulnerability
+patch:
+  'npm:lodash:20180130':
+    - hexo-migrator-ghost > lodash:
+        patched: '2020-09-05T00:44:48.963Z'
+  'npm:uglify-js:20151024':
+    - hexo-renderer-jade > jade > transformers > uglify-js:
+        patched: '2020-09-05T00:44:48.963Z'
+    - hexo-deployer-git > swig > uglify-js:
+        patched: '2020-09-05T00:44:48.963Z'
