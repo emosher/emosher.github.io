@@ -1,7 +1,6 @@
 ---
 title: 3 Months of Code?
-tags: |-
-
+tags: 
   - code
   - interests
   - passion

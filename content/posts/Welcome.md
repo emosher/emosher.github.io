@@ -1,7 +1,6 @@
 ---
 title: 'Welcome!'
-tags: |-
-
+tags: 
   - software
   - welcome
   - engineer

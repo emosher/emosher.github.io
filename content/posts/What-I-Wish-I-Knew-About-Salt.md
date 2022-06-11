@@ -1,7 +1,9 @@
 ---
 title: What I Wish I Knew About Salt
 date: 2016-07-02 19:10:39
-tags: salt
+tags: 
+  - salt
+draft: true
 ---
 
 Over the past several months I have had the opportunity to dig into Salt (or SaltStack). I use it for everything from configuration and deployment of servers, to everyday troubleshooting. This post is a collection of short tidbits that I wish I knew about Salt when I started. This isn't meant to be an intro or how to about Salt. For that, I highly recommend the [tutorials in the Salt docs](https://docs.saltstack.com/en/latest/).

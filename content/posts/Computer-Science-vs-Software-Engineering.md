@@ -1,7 +1,6 @@
 ---
 title: Computer Science vs. Software Engineering
-tags: |-
-
+tags: 
   - computer science
   - software engineering
 permalink: cs-vs-se

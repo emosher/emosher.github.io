@@ -1,7 +1,6 @@
 ---
 title: Govern Node Right
-tags: |-
-
+tags: 
   - node.js
 permalink: govern-node-right
 id: 22

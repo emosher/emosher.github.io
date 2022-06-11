@@ -1,7 +1,6 @@
 ---
 title: Building Smarter Directives
-tags: |-
-
+tags: 
   - angularjs
   - javascript
 permalink: building-smarter-directives

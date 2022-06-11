@@ -1,7 +1,6 @@
 ---
 title: 'Building Smarter Directives #2'
-tags: |-
-
+tags: 
   - angularjs
   - javascript
   - directives

@@ -1,7 +1,6 @@
 ---
 title: Local Storage to Production
-tags: |-
-
+tags: 
   - angularjs
   - javascript
 permalink: local-storage-to-production

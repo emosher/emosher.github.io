@@ -1,7 +1,6 @@
 ---
 title: Ghost 0.5
-tags: |-
-
+tags: 
   - ghost
   - release
   - hannah wolfe

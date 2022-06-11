@@ -1,7 +1,6 @@
 ---
 title: AngularJS App Walkthrough
-tags: |-
-
+tags: 
   - angularjs
   - javascript
   - jawa
