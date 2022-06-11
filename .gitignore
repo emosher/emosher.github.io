@@ -9,3 +9,4 @@ node_modules/
 public/
 .deploy/
 .deploy_git/
+.hugo_build.lock
