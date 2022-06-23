@@ -1,9 +1,15 @@
-[submodule "themes/hugo-coder"]
-	path = themes/hugo-coder
-	url = https://github.com/luizdepra/hugo-coder.git
 [submodule "themes/terminal"]
 	path = themes/terminal
 	url = https://github.com/panr/hugo-theme-terminal.git
 [submodule "themes/ananke"]
 	path = themes/ananke
 	url = https://github.com/theNewDynamic/gohugo-theme-ananke.git
+[submodule "themes/stack"]
+	path = themes/stack
+	url = https://github.com/CaiJimmy/hugo-theme-stack.git
+[submodule "themes/pico"]
+	path = themes/pico
+	url = https://github.com/negrel/hugo-theme-pico.git
+[submodule "themes/cayman-hugo-theme"]
+	path = themes/cayman-hugo-theme
+	url = https://github.com/zwbetz-gh/cayman-hugo-theme.git
