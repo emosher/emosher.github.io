@@ -1,0 +1,36 @@
+<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=generator content="Hugo 0.101.0"><meta name=description content="My last post talked about conditionally loading templates using ng-include.
+I spent a good amount of time using this, but found it to be problematic because it was causing my HTML to become bloated. Instead of adding to the div soup, I set out to find a better way.
+This leads to nested divs:
+<div ng-include=&#34;contentUrl&#34;></div> Renders something like this:
+<div ng-include=&#34;contentUrl&#34;> <div> This is the template </div> </div> As it turned out, there are options!"><link rel=stylesheet href=https://emosher.dev/css/normalize.css><link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel=stylesheet type=text/css><link rel=stylesheet href=https://emosher.dev/css/cayman.a134bfd387c4421893b8b84f607a0e7f301904bffa11e51ed538af8a40d4c4f3.css><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><title>Building Smarter Directives #2 | emosher.dev</title></head><body><section class=page-header><h1 class=project-name>Eric&rsquo;s Blog</h1><h2 class=project-tagline>A technologist just trying to navigate through life</h2><nav><a href=/ class=btn>Blog</a>
+<a href=/tags/ class=btn>Tags</a>
+<a href=/about/ class=btn>About</a>
+<a href=/index.xml class=btn>RSS</a></nav></section><section class=main-content><h1>Building Smarter Directives #2</h1><p>My <a href=https://emosher.org/2014/05/19/building-smarter-directives/>last post</a> talked about conditionally loading templates using <code>ng-include</code>.</p><p>I spent a good amount of time using this, but found it to be problematic because it was causing my HTML to become bloated. Instead of adding to the div soup, I set out to find a better way.</p><p>This leads to nested divs:</p><pre tabindex=0><code>&lt;div ng-include=&#34;contentUrl&#34;&gt;&lt;/div&gt;
+</code></pre><p>Renders something like this:</p><pre tabindex=0><code>&lt;div ng-include=&#34;contentUrl&#34;&gt;
+    &lt;div&gt; This is the template &lt;/div&gt;
+&lt;/div&gt;
+</code></pre><p>As it turned out, there are options! First, I found out that in 1.1.4, Angular added the ability to use a function as the <code>templateUrl</code>. In your directive definition object, you can have the following:</p><div class=highlight><pre tabindex=0 style=-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-javascript data-lang=javascript><span style=display:flex><span>angular.module(<span style=color:#ba2121>&#39;myApp&#39;</span>, [])
+</span></span><span style=display:flex><span>    .directive(<span style=color:#ba2121>&#39;example&#39;</span>, <span style=color:green;font-weight:700>function</span>() {
+</span></span><span style=display:flex><span>    	<span style=color:green;font-weight:700>return</span> {
+</span></span><span style=display:flex><span>        	templateUrl<span style=color:#666>:</span> <span style=color:green;font-weight:700>function</span>(tElement, tAttrs) {
+</span></span><span style=display:flex><span>                <span style=color:#408080;font-style:italic>// Template can be chosen here
+</span></span></span><span style=display:flex><span><span style=color:#408080;font-style:italic></span>                <span style=color:#408080;font-style:italic>// Try something like this
+</span></span></span><span style=display:flex><span><span style=color:#408080;font-style:italic></span>                <span style=color:green;font-weight:700>return</span> tAttrs.example.toLowerCase() <span style=color:#666>+</span> <span style=color:#ba2121>&#39;.html&#39;</span>;
+</span></span><span style=display:flex><span>			}
+</span></span><span style=display:flex><span>		};
+</span></span><span style=display:flex><span>	});
+</span></span></code></pre></div><p>Then use it like this:</p><pre tabindex=0><code>&lt;!-- Includes &#39;one.html&#39; --&gt;
+&lt;div example=&#34;one&#34;&gt;&lt;/div&gt;
+&lt;!-- Includes &#39;two.html&#39; --&gt;
+&lt;div example=&#34;two&#34;&gt;&lt;/div&gt;
+</code></pre><p>The other option that I found was to do what is essentially a manual <code>ng-include</code>. The problem I&rsquo;ve found with this is that it makes the directive a bit harder to test. By going around Angular&rsquo;s built in ways of including the template, you are circumventing the <code>$templateCache</code>.</p><p>To do this, you use the <code>$http</code> and <code>$compile</code> service to retrieve and compile the template yourself:</p><div class=highlight><pre tabindex=0 style=-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-javascript data-lang=javascript><span style=display:flex><span>angular.module(<span style=color:#ba2121>&#39;myApp&#39;</span>)
+</span></span><span style=display:flex><span>    .directive(<span style=color:#ba2121>&#39;example&#39;</span>, <span style=color:green;font-weight:700>function</span>($http, $compile) {
+</span></span><span style=display:flex><span>    	<span style=color:green;font-weight:700>return</span> {
+</span></span><span style=display:flex><span>        	link<span style=color:#666>:</span> <span style=color:green;font-weight:700>function</span>(scope, element, attrs) {
+</span></span><span style=display:flex><span>        		$http.get(attrs.example <span style=color:#666>+</span> <span style=color:#ba2121>&#39;.html&#39;</span>).then(<span style=color:green;font-weight:700>function</span>(response) {
+</span></span><span style=display:flex><span>                	element.html($compile(response.data)(scope));
+</span></span><span style=display:flex><span>                });
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>        };
+</span></span><span style=display:flex><span>    });
+</span></span></code></pre></div><p>This version of the directive would be used the same as above, allowing you to include <code>one.html</code> or <code>two.html</code>.</p><p>Whatever you decide to use, the good news is that you have options to suit your situation.</p><footer class=site-footer><span class=site-footer-credits>Made with <a href=https://gohugo.io/>Hugo</a>. Themed by <a href=https://github.com/zwbetz-gh/cayman-hugo-theme>Cayman</a>. Deployed to <a href=https://pages.github.com/>GitHub Pages</a>.</span></footer></section></body></html>

@@ -1,0 +1,44 @@
+<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=generator content="Hugo 0.101.0"><meta name=description content="I’ve been working a lot with AngularJS directives recently.
+If you are not familiar with AngularJS or directives, head over to the AngularJS tutorial and developer guide to get up to speed.
+Template vs. TemplateUrl If you are like me, you like to keep HTML out of your JavaScript. When I’m writing my directives, I almost always keep templates in seperate HTML files rather than using inline templates (see below for an example)."><link rel=stylesheet href=https://emosher.dev/css/normalize.css><link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel=stylesheet type=text/css><link rel=stylesheet href=https://emosher.dev/css/cayman.a134bfd387c4421893b8b84f607a0e7f301904bffa11e51ed538af8a40d4c4f3.css><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><title>Building Smarter Directives | emosher.dev</title></head><body><section class=page-header><h1 class=project-name>Eric&rsquo;s Blog</h1><h2 class=project-tagline>A technologist just trying to navigate through life</h2><nav><a href=/ class=btn>Blog</a>
+<a href=/tags/ class=btn>Tags</a>
+<a href=/about/ class=btn>About</a>
+<a href=/index.xml class=btn>RSS</a></nav></section><section class=main-content><h1>Building Smarter Directives</h1><p>I&rsquo;ve been working a lot with AngularJS directives recently.</p><p>If you are not familiar with AngularJS or directives, head over to the <a href=https://docs.angularjs.org/tutorial>AngularJS tutorial</a> and <a href=https://docs.angularjs.org/guide>developer guide</a> to get up to speed.</p><h3 id=template-vs-templateurl>Template vs. TemplateUrl</h3><p>If you are like me, you like to keep HTML out of your JavaScript. When I&rsquo;m writing my directives, I almost always keep templates in seperate HTML files rather than using inline templates (see below for an example).</p><pre tabindex=0><code>	  // This inline template makes me a sad panda :(
+    angular.module(&#39;myApp&#39;, [])
+    	.directive(&#39;example&#39;, function() {
+    		return {
+        		template: &#39;&lt;div ng-include=&#34;contentUrl&#34;&gt;&lt;/div&gt;&#39;
+        		};
+    		};
+		});
+</code></pre><p>Or &mldr;</p><pre tabindex=0><code>	  // Moving that HTML into a seperate file makes me happy! :)
+    angular.module(&#39;myApp&#39;, [])
+    	.directive(&#39;example&#39;, function() {
+    		return {
+        		templateUrl: &#39;example.html&#39;
+        		};
+    		};
+		});
+</code></pre><h3 id=smart-directives>&lsquo;Smart&rsquo; Directives</h3><p>One of the big challenges I have been facing is how to make my directives <em>smarter.</em> One way I have found recently is creating the ability to include one of any number of templates via the <code>ngInclude</code> directive above. This way one directive can use any number of templates which makes the directive feel like a self-contained component.</p><p>Thanks to the built-in ngInclude directive, this is fairly easy. Throw some HTML into <code>one.html</code> or <code>two.html</code> and you will have the start to a smarter directive. Suppose you have the following in your directive&rsquo;s <code>templateUrl: mydirective.html</code>.</p><pre tabindex=0><code>	&lt;div ng-include=&#34;contentUrl&#34;&gt;&lt;/div&gt;
+</code></pre><p>This allows you to set the directive&rsquo;s scope variable <code>contentUrl</code> to be included within this directive. For demonstration, the directive will be called <code>emSmarty</code> and you would structure it like so:</p><pre tabindex=0><code>	app.directive(&#39;emSmarty&#39;, function() {
+    	return {
+        	templateUrl: &#39;emsmarty.html&#39;,
+        	scope: true,
+        	link: function(scope, element, attrs) {
+            	scope.contentUrl = attrs.emSmarty + &#39;.html&#39;;
+        	}
+    	};
+	});
+</code></pre><p>This allows you to use the directive within your HTML: <code>em-smarty="one"</code>. That will include <code>one.html</code> in the directive!</p><h3 id=feel-the-power-of-the-directive-side>Feel the Power of the Directive Side</h3><p>Where ngInclude comes in very handy is where you have several templates that you might want to load depending on some condition. Think of it like this&mldr;</p><pre tabindex=0><code>	switch (condition) {
+    	case &#34;one&#34;:
+        	// Use template &#39;one&#39;
+            break;
+        case &#34;two&#34;:
+        	// Use template &#39;two&#39;
+            break;
+        case &#34;three&#34;:
+        	// Use template &#39;three&#39;
+            break;
+        // This could go on...
+    }
+</code></pre><p>Here&rsquo;s a Plunker I created to show a simple example of conditional loading a templateUrl.</p><p><a href="http://plnkr.co/edit/F7WRhY?p=preview">http://plnkr.co/edit/F7WRhY?p=preview</a></p><h3 id=additional-discussion>Additional Discussion</h3><p>You can find some additional resources on creating smarter directives at the following links:</p><ul><li><a href=https://coderwall.com/p/mgtrkg>https://coderwall.com/p/mgtrkg</a></li><li><a href=http://onehungrymind.com/angularjs-dynamic-templates/>http://onehungrymind.com/angularjs-dynamic-templates/</a></li></ul><footer class=site-footer><span class=site-footer-credits>Made with <a href=https://gohugo.io/>Hugo</a>. Themed by <a href=https://github.com/zwbetz-gh/cayman-hugo-theme>Cayman</a>. Deployed to <a href=https://pages.github.com/>GitHub Pages</a>.</span></footer></section></body></html>
