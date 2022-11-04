@@ -43,13 +43,16 @@ gcloud beta container --project $PROJ clusters create $CLUSTER \
  --no-enable-master-authorized-networks \
  --addons HorizontalPodAutoscaling,HttpLoadBalancing,GcePersistentDiskCsiDriver --enable-autoupgrade \
  --enable-autorepair --max-surge-upgrade 1 \
- --max-unavailable-upgrade 0 --enable-shielded-nodes
+ --max-unavailable-upgrade 0 --enable-shielded-nodes \
+ --node-locations "us-east4-a"
 ```
 
 ### Further Details
 
 
-Of note for my use case is that I need `"https://www.googleapis.com/auth/ndev.clouddns.readwrite"` in order for [External DNS](https://github.com/kubernetes-sigs/external-dns/blob/master/docs/tutorials/gke.md) to work.  I moved the common things I need to change to variables, but you could certainly move other things there if needed.  For example, you may want a different region but I almost always use `us-east4`.  
+First, of note for me is that I need `"https://www.googleapis.com/auth/ndev.clouddns.readwrite"` in order for [External DNS](https://github.com/kubernetes-sigs/external-dns/blob/master/docs/tutorials/gke.md) to work.  I moved the common things I need to change to variables, but you could certainly move other things there if needed.  For example, you may want a different region but I almost always use `us-east4`.  
+
+Second, since this is a regional cluster, we need to specify `--node-locations "us-east4-a"` or else it would use all 3 zones.  This would be great for production workloads, but isn't necessary for me.  If you omitted this option, it would a 12 node cluster in this example (4 nodes X 3 zones).
 
 Last, I think it's important to point out how I got here - go to the GKE cluster creation screen in the Web UI, and you can select options in the GUI and then select the equivalent "command line" link at the bottom of the page.  From there, you can customize the command to your liking or add it to your own scripting. 
 
