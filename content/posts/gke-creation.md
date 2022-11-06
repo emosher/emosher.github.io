@@ -10,7 +10,7 @@ Google Kubernetes Engine (GKE) has become one of my favorite ways to easily spin
 
 ### Problem 
 
-I believe that clusters can and should be disposable.  Thus, I find myself recreating clusters often.  While the web UI is a great option, I've also find the need to tweak certain knobs from time to time.  Since I use my clusters with Tanzu Application Platform, I also need certain features for that to work.  I needed to find a way to more repeatably    
+I believe that clusters can and should be disposable.  Thus, I find myself recreating clusters often.  While the web UI is a great option, I've also find the need to tweak certain knobs from time to time.  Since I use my clusters with Tanzu Application Platform, I also need certain features for that to work.  I needed to find a way to more repeatably create clusters while getting the right flags enabled.    
 
 ### Solution
 
