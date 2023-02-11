@@ -1,0 +1,68 @@
+<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=generator content="Hugo 0.110.0"><meta name=description content="I’ve never claimed to be a SysAdmin, I only cosplay as one. As such, it has been a while since I had to manage Linux volumes. Every time I have to do it, I end up wading through Google results for a while before I really find what I want. I’m 100% making this post for myself to refer to later, but maybe you will find it useful too!
+The Typical Situation Generally I’m dealing with one, maybe two volumes."><link rel=stylesheet href=https://emosher.dev/css/normalize.css><link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel=stylesheet type=text/css><link rel=stylesheet href=https://emosher.dev/css/cayman.a134bfd387c4421893b8b84f607a0e7f301904bffa11e51ed538af8a40d4c4f3.css><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><title>Linux Volumes Commands | emosher.dev</title></head><body><section class=page-header><h1 class=project-name>Eric&rsquo;s Blog</h1><h2 class=project-tagline>A technologist just trying to navigate through life</h2><nav><a href=/ class=btn>Blog</a>
+<a href=/tags/ class=btn>Tags</a>
+<a href=/about/ class=btn>About</a>
+<a href=/index.xml class=btn>RSS</a></nav></section><section class=main-content><h1>Linux Volumes Commands</h1><p>I&rsquo;ve never claimed to be a SysAdmin, <a href=https://www.jeffgeerling.com/blog/2022/cosplaying-sysadmin>I only cosplay as one</a>. As such, it has been a while since I had to manage Linux volumes. Every time I have to do it, I end up wading through Google results for a while before I really find what I want. I&rsquo;m 100% making this post for myself to refer to later, but maybe you will find it useful too!</p><h2 id=the-typical-situation>The Typical Situation</h2><p>Generally I&rsquo;m dealing with one, maybe two volumes. And more often than not, all I&rsquo;m trying to do is increase the size of the volume to 100% of the space on disk. I recently hit this after installing Ubuntu server on a machine in my house. Here&rsquo;s the commands I found helpful to get this done.</p><h2 id=data-gathering>Data Gathering</h2><p>The following commands are how we gather data about the volumes. In this case, we know it is a 500GB drive.</p><h3 id=list-the-volume-groups>List the Volume Group(s)</h3><div class=highlight><pre tabindex=0 style=-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>root@server:/# vgs
+</span></span><span style=display:flex><span>  VG        <span style=color:#408080;font-style:italic>#PV #LV #SN Attr   VSize    VFree</span>
+</span></span><span style=display:flex><span>  ubuntu-vg   <span style=color:#666>1</span>   <span style=color:#666>1</span>   <span style=color:#666>0</span> wz--n- &lt;462.71g &lt;362.71g
+</span></span><span style=display:flex><span>root@server:/# vgdisplay
+</span></span><span style=display:flex><span>  --- Volume group ---
+</span></span><span style=display:flex><span>  VG Name               ubuntu-vg
+</span></span><span style=display:flex><span>  System ID
+</span></span><span style=display:flex><span>  Format                lvm2
+</span></span><span style=display:flex><span>  Metadata Areas        <span style=color:#666>1</span>
+</span></span><span style=display:flex><span>  Metadata Sequence No  <span style=color:#666>2</span>
+</span></span><span style=display:flex><span>  VG Access             read/write
+</span></span><span style=display:flex><span>  VG Status             resizable
+</span></span><span style=display:flex><span>  MAX LV                <span style=color:#666>0</span>
+</span></span><span style=display:flex><span>  Cur LV                <span style=color:#666>1</span>
+</span></span><span style=display:flex><span>  Open LV               <span style=color:#666>1</span>
+</span></span><span style=display:flex><span>  Max PV                <span style=color:#666>0</span>
+</span></span><span style=display:flex><span>  Cur PV                <span style=color:#666>1</span>
+</span></span><span style=display:flex><span>  Act PV                <span style=color:#666>1</span>
+</span></span><span style=display:flex><span>  VG Size               &lt;462.71 GiB
+</span></span><span style=display:flex><span>  PE Size               4.00 MiB
+</span></span><span style=display:flex><span>  Total PE              <span style=color:#666>118453</span>
+</span></span><span style=display:flex><span>  Alloc PE / Size       <span style=color:#666>25600</span> / 100.00 GiB
+</span></span><span style=display:flex><span>  Free  PE / Size       <span style=color:#666>92853</span> / &lt;362.71 GiB
+</span></span><span style=display:flex><span>  VG UUID               DvqiV6-FyCN-l6UA-B5kX-9M4E-FsrU-FkwM76
+</span></span></code></pre></div><p>Of importance here, is we can see that the volume group is of a size of <code>&lt;462.71 GiB</code> - that means we don&rsquo;t need to add any storage to the volume group.</p><h3 id=list-the-volumes>List the Volume(s)</h3><div class=highlight><pre tabindex=0 style=-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>root@server:/# lvs
+</span></span><span style=display:flex><span>  LV        VG        Attr       LSize   Pool Origin Data%  Meta%  Move Log Cpy%Sync Convert
+</span></span><span style=display:flex><span>  ubuntu-lv ubuntu-vg -wi-ao---- 100.00g
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>root@server:/# lvdisplay
+</span></span><span style=display:flex><span>  --- Logical volume ---
+</span></span><span style=display:flex><span>  LV Path                /dev/ubuntu-vg/ubuntu-lv
+</span></span><span style=display:flex><span>  LV Name                ubuntu-lv
+</span></span><span style=display:flex><span>  VG Name                ubuntu-vg
+</span></span><span style=display:flex><span>  LV UUID                nTNiMs-YMl2-euj3-bUEp-RVWd-rZhy-VOGSLd
+</span></span><span style=display:flex><span>  LV Write Access        read/write
+</span></span><span style=display:flex><span>  LV Creation host, <span style=color:green>time</span> ubuntu-server, 2023-02-10 17:22:20 +0000
+</span></span><span style=display:flex><span>  LV Status              available
+</span></span><span style=display:flex><span>  <span style=color:#408080;font-style:italic># open                 1</span>
+</span></span><span style=display:flex><span>  LV Size                100.00 GiB
+</span></span><span style=display:flex><span>  Current LE             <span style=color:#666>25600</span>
+</span></span><span style=display:flex><span>  Segments               <span style=color:#666>1</span>
+</span></span><span style=display:flex><span>  Allocation             inherit
+</span></span><span style=display:flex><span>  Read ahead sectors     auto
+</span></span><span style=display:flex><span>  - currently <span style=color:green>set</span> to     <span style=color:#666>256</span>
+</span></span><span style=display:flex><span>  Block device           253:0
+</span></span></code></pre></div><p>Here we can see we only have one volume at <code>/dev/ubuntu-vg/ubuntu-lv</code>, and it is only 100 GiB. So how do we use the rest of the disk?</p><h3 id=resize-the-volume>Resize the Volume</h3><p>There&rsquo;s 2 steps here. First we need to extend the volume, to tell Linux to use the rest of the disk. Next, we have to resize the filesystem so we can use the space we&rsquo;ve just allocated.</p><div class=highlight><pre tabindex=0 style=-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>root@server:/# lvextend -l +100%FREE /dev/ubuntu-vg/ubuntu-lv
+</span></span><span style=display:flex><span>  Size of logical volume ubuntu-vg/ubuntu-lv changed from 100.00 GiB <span style=color:#666>(</span><span style=color:#666>25600</span> extents<span style=color:#666>)</span> to &lt;462.71 GiB <span style=color:#666>(</span><span style=color:#666>118453</span> extents<span style=color:#666>)</span>.
+</span></span><span style=display:flex><span>  Logical volume ubuntu-vg/ubuntu-lv successfully resized.
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>root@server:/# resize2fs /dev/ubuntu-vg/ubuntu-lv
+</span></span><span style=display:flex><span>resize2fs 1.46.5 <span style=color:#666>(</span>30-Dec-2021<span style=color:#666>)</span>
+</span></span><span style=display:flex><span>Filesystem at /dev/ubuntu-vg/ubuntu-lv is mounted on /; on-line resizing required
+</span></span><span style=display:flex><span><span style=color:#19177c>old_desc_blocks</span> <span style=color:#666>=</span> 13, <span style=color:#19177c>new_desc_blocks</span> <span style=color:#666>=</span> <span style=color:#666>58</span>
+</span></span><span style=display:flex><span>The filesystem on /dev/ubuntu-vg/ubuntu-lv is now <span style=color:#666>121295872</span> <span style=color:#666>(</span>4k<span style=color:#666>)</span> blocks long.
+</span></span></code></pre></div><p>We can confirm everything worked with <code>df -h</code>, and we can see that we now have 455G of space on the drive.</p><div class=highlight><pre tabindex=0 style=-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>root@server:/# df -h
+</span></span><span style=display:flex><span>Filesystem                         Size  Used Avail Use% Mounted on
+</span></span><span style=display:flex><span>tmpfs                              774M  1.7M  772M   1% /run
+</span></span><span style=display:flex><span>/dev/mapper/ubuntu--vg-ubuntu--lv  455G   12G  424G   3% /
+</span></span><span style=display:flex><span>tmpfs                              3.8G     <span style=color:#666>0</span>  3.8G   0% /dev/shm
+</span></span><span style=display:flex><span>tmpfs                              5.0M     <span style=color:#666>0</span>  5.0M   0% /run/lock
+</span></span><span style=display:flex><span>/dev/sda2                          2.0G  246M  1.6G  14% /boot
+</span></span><span style=display:flex><span>/dev/sda1                          1.1G  6.1M  1.1G   1% /boot/efi
+</span></span><span style=display:flex><span>tmpfs                              774M  4.0K  774M   1% /run/user/1000
+</span></span></code></pre></div><footer class=site-footer><span class=site-footer-credits>Made with <a href=https://gohugo.io/>Hugo</a>. Themed by <a href=https://github.com/zwbetz-gh/cayman-hugo-theme>Cayman</a>. Deployed to <a href=https://pages.github.com/>GitHub Pages</a>.</span></footer></section></body></html>
